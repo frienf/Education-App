@@ -5,10 +5,15 @@ import QuizQuestion from "@/components/quiz/QuizQuestion";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function QuizPage() {
-  const { currentQuestion, selectAnswer, nextQuestion } = useQuizStore();
+  const { currentQuestion, selectAnswer, nextQuestion, fetchQuestions } = useQuizStore();
   const router = useRouter();
+
+  useEffect(() => {
+    fetchQuestions();
+  }, [fetchQuestions]);
 
   const handleAnswer = (answer: string) => {
     selectAnswer(answer);

@@ -5,56 +5,63 @@ import { calculateNextReview } from "@/lib/utils/spacedRepetitionAlgo";
 type SpacedRepetitionState = {
   cards: Flashcard[];
   cardsDue: Flashcard[];
-  addCard: (card: Flashcard) => void;
-  reviewCard: (id: string, rating: "hard" | "good" | "easy") => void;
+  fetchCards: () => Promise<void>;
+  addCard: (card: Omit<Flashcard, "id" | "interval" | "ease" | "nextReview" | "reviews" | "correctReviews">) => Promise<void>;
+  reviewCard: (id: string, rating: "hard" | "good" | "easy") => Promise<void>;
+  deleteCard: (id: string) => Promise<void>;
 };
 
-// Sample cards (replace with API call in production)
-const sampleCards: Flashcard[] = [
-  {
-    id: "1",
-    front: "What is the capital of France?",
-    back: "Paris",
-    interval: 1,
-    ease: 2.5,
-    nextReview: "2025-05-17T00:00:00Z",
-    reviews: 0,
-    correctReviews: 0,
-  },
-  {
-    id: "2",
-    front: "What is 2 + 2?",
-    back: "4",
-    interval: 1,
-    ease: 2.5,
-    nextReview: "2025-05-17T00:00:00Z",
-    reviews: 0,
-    correctReviews: 0,
-  },
-];
-
 export const useSpacedRepetitionStore = create<SpacedRepetitionState>((set) => ({
-  cards: sampleCards,
-  cardsDue: sampleCards.filter(
-    (card) => new Date(card.nextReview) <= new Date()
-  ),
-  addCard: (card) =>
-    set((state) => ({
-      cards: [...state.cards, card],
-      cardsDue: [...state.cardsDue, card].filter(
-        (c) => new Date(c.nextReview) <= new Date()
-      ),
-    })),
-  reviewCard: (id, rating) =>
-    set((state) => {
-      const card = state.cards.find((c) => c.id === id);
-      if (!card) return state;
-
+  cards: [],
+  cardsDue: [],
+  fetchCards: async () => {
+    try {
+      const response = await fetch("/api/spaced-repetition");
+      const data = await response.json();
+      set({
+        cards: data,
+        cardsDue: data.filter(
+          (card: Flashcard) => new Date(card.nextReview) <= new Date()
+        ),
+      });
+    } catch (error) {
+      console.error("Failed to fetch flashcards:", error);
+    }
+  },
+  addCard: async (card) => {
+    try {
+      const newCard = {
+        ...card,
+        interval: 1,
+        ease: 2.5,
+        nextReview: new Date().toISOString(),
+        reviews: 0,
+        correctReviews: 0,
+      };
+      const response = await fetch("/api/spaced-repetition", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newCard),
+      });
+      const addedCard = await response.json();
+      set((state) => ({
+        cards: [...state.cards, addedCard],
+        cardsDue: [...state.cardsDue, addedCard].filter(
+          (c) => new Date(c.nextReview) <= new Date()
+        ),
+      }));
+    } catch (error) {
+      console.error("Failed to add flashcard:", error);
+    }
+  },
+  reviewCard: async (id, rating) => {
+    try {
+      const card = (await useSpacedRepetitionStore.getState()).cards.find((c) => c.id === id);
+      if (!card) return;
       const { interval, ease, nextReview, isCorrect } = calculateNextReview(
         card,
         rating
       );
-
       const updatedCard = {
         ...card,
         interval,
@@ -63,16 +70,35 @@ export const useSpacedRepetitionStore = create<SpacedRepetitionState>((set) => (
         reviews: card.reviews + 1,
         correctReviews: isCorrect ? card.correctReviews + 1 : card.correctReviews,
       };
-
-      const updatedCards = state.cards.map((c) =>
-        c.id === id ? updatedCard : c
-      );
-
-      return {
-        cards: updatedCards,
-        cardsDue: updatedCards.filter(
-          (c) => new Date(c.nextReview) <= new Date()
-        ),
-      };
-    }),
+      const response = await fetch("/api/spaced-repetition", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedCard),
+      });
+      const savedCard = await response.json();
+      set((state) => ({
+        cards: state.cards.map((c) => (c.id === id ? savedCard : c)),
+        cardsDue: state.cards
+          .map((c) => (c.id === id ? savedCard : c))
+          .filter((c) => new Date(c.nextReview) <= new Date()),
+      }));
+    } catch (error) {
+      console.error("Failed to review flashcard:", error);
+    }
+  },
+  deleteCard: async (id) => {
+    try {
+      await fetch("/api/spaced-repetition", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      set((state) => ({
+        cards: state.cards.filter((c) => c.id !== id),
+        cardsDue: state.cardsDue.filter((c) => c.id !== id),
+      }));
+    } catch (error) {
+      console.error("Failed to delete flashcard:", error);
+    }
+  },
 }));

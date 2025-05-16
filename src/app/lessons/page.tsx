@@ -5,17 +5,20 @@ import Timeline from "@/components/lessons/Timeline";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function LessonsPage() {
-  const { addLesson } = useLessonStore();
+  const { addLesson, fetchLessons } = useLessonStore();
   const [title, setTitle] = useState("");
   const [duration, setDuration] = useState(1);
+
+  useEffect(() => {
+    fetchLessons();
+  }, [fetchLessons]);
 
   const handleAddLesson = () => {
     if (title.trim() && duration > 0) {
       addLesson({
-        id: Date.now().toString(),
         title,
         date: new Date().toISOString().split("T")[0],
         duration,

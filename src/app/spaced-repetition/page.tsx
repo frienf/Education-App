@@ -6,25 +6,20 @@ import StatsDashboard from "@/components/spaced-repetition/StatsDashboard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function SpacedRepetitionPage() {
-  const { cardsDue, addCard } = useSpacedRepetitionStore();
+  const { cardsDue, addCard, fetchCards } = useSpacedRepetitionStore();
   const [front, setFront] = useState("");
   const [back, setBack] = useState("");
 
+  useEffect(() => {
+    fetchCards();
+  }, [fetchCards]);
+
   const handleAddCard = () => {
     if (front.trim() && back.trim()) {
-      addCard({
-        id: Date.now().toString(),
-        front,
-        back,
-        interval: 1,
-        ease: 2.5,
-        nextReview: new Date().toISOString(),
-        reviews: 0,
-        correctReviews: 0,
-      });
+      addCard({ front, back });
       setFront("");
       setBack("");
     }

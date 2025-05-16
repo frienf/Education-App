@@ -3,39 +3,61 @@ import { Lesson } from "@/lib/types/lesson";
 
 type LessonState = {
   lessons: Lesson[];
-  addLesson: (lesson: Lesson) => void;
-  updateLessonDate: (id: string, date: string) => void;
+  fetchLessons: () => Promise<void>;
+  addLesson: (lesson: Omit<Lesson, "id">) => Promise<void>;
+  updateLessonDate: (id: string, date: string) => Promise<void>;
+  deleteLesson: (id: string) => Promise<void>;
 };
 
-// Sample lessons (replace with API call in production)
-const sampleLessons: Lesson[] = [
-  {
-    id: "1",
-    title: "Introduction to Algebra",
-    date: "2025-05-18",
-    duration: 2,
-  },
-  {
-    id: "2",
-    title: "Physics Basics",
-    date: "2025-05-20",
-    duration: 1,
-  },
-  {
-    id: "3",
-    title: "Essay Writing",
-    date: "2025-05-22",
-    duration: 3,
-  },
-];
-
 export const useLessonStore = create<LessonState>((set) => ({
-  lessons: sampleLessons,
-  addLesson: (lesson) => set((state) => ({ lessons: [...state.lessons, lesson] })),
-  updateLessonDate: (id, date) =>
-    set((state) => ({
-      lessons: state.lessons.map((lesson) =>
-        lesson.id === id ? { ...lesson, date } : lesson
-      ),
-    })),
+  lessons: [],
+  fetchLessons: async () => {
+    try {
+      const response = await fetch("/api/lessons");
+      const data = await response.json();
+      set({ lessons: data });
+    } catch (error) {
+      console.error("Failed to fetch lessons:", error);
+    }
+  },
+  addLesson: async (lesson) => {
+    try {
+      const response = await fetch("/api/lessons", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(lesson),
+      });
+      const newLesson = await response.json();
+      set((state) => ({ lessons: [...state.lessons, newLesson] }));
+    } catch (error) {
+      console.error("Failed to add lesson:", error);
+    }
+  },
+  updateLessonDate: async (id, date) => {
+    try {
+      const response = await fetch("/api/lessons", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, date }),
+      });
+      const updatedLesson = await response.json();
+      set((state) => ({
+        lessons: state.lessonStore.map((l) => (l.id === id ? updatedLesson : l)),
+      }));
+    } catch (error) {
+      console.error("Failed to update lesson date:", error);
+    }
+  },
+  deleteLesson: async (id) => {
+    try {
+      await fetch("/api/lessons", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      set((state) => ({ lessons: state.lessons.filter((l) => l.id !== id) }));
+    } catch (error) {
+      console.error("Failed to delete lesson:", error);
+    }
+  },
 }));

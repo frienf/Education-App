@@ -5,18 +5,21 @@ import ReadingTable from "@/components/reading/ReadingTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function ReadingPage() {
-  const { addReading } = useReadingStore();
+  const { readings, addReading, fetchReadings } = useReadingStore();
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
-  const [rating, setRating] = useState(0);
+  const [rating, setRating] = useState(1);
+
+  useEffect(() => {
+    fetchReadings();
+  }, [fetchReadings]);
 
   const handleAddReading = () => {
-    if (title.trim() && author.trim() && rating > 0) {
+    if (title.trim() && author.trim()) {
       addReading({
-        id: Date.now().toString(),
         title,
         author,
         date: new Date().toISOString().split("T")[0],
@@ -24,7 +27,7 @@ export default function ReadingPage() {
       });
       setTitle("");
       setAuthor("");
-      setRating(0);
+      setRating(1);
     }
   };
 
@@ -47,23 +50,17 @@ export default function ReadingPage() {
           value={author}
           onChange={(e) => setAuthor(e.target.value)}
         />
-        <div className="flex items-center gap-2">
-          <select
-            value={rating}
-            onChange={(e) => setRating(Number(e.target.value))}
-            className="border rounded px-3 py-2"
-          >
-            <option value="0">Select Rating</option>
-            {[1, 2, 3, 4, 5].map((num) => (
-              <option key={num} value={num}>
-                {num} Star{num > 1 ? "s" : ""}
-              </option>
-            ))}
-          </select>
-          <Button onClick={handleAddReading}>Add Book</Button>
-        </div>
+        <Input
+          type="number"
+          placeholder="Rating (1-5)"
+          value={rating}
+          onChange={(e) => setRating(Number(e.target.value))}
+          min="1"
+          max="5"
+        />
+        <Button onClick={handleAddReading}>Add Book</Button>
       </div>
-      <ReadingTable />
+      <ReadingTable readings={readings} />
     </motion.div>
   );
 }

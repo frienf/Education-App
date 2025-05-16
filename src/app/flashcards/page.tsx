@@ -1,25 +1,68 @@
-import Flashcard from "@/components/flashcard/Flashcard";
+"use client";
+
 import { useFlashcardStore } from "@/lib/zustand/flashcardStore";
+import Flashcard from "@/components/flashcard/Flashcard";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 
 export default function FlashcardsPage() {
-  const { flashcards, addFlashcard } = useFlashcardStore();
+  const { flashcards, addFlashcard, fetchFlashcards } = useFlashcardStore();
+  const [front, setFront] = useState("");
+  const [back, setBack] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    fetchFlashcards();
+  }, [fetchFlashcards]);
+
+  const handleAddFlashcard = () => {
+    if (front.trim() && back.trim()) {
+      addFlashcard({ front, back });
+      setFront("");
+      setBack("");
+    }
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % flashcards.length);
+  };
 
   return (
-    <div className="container mx-auto p-4">
+    <motion.div
+      className="container mx-auto p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       <h1 className="text-2xl font-bold mb-4">Flashcards</h1>
-      <button
-        className="mb-4 bg-blue-500 text-white px-4 py-2 rounded"
-        onClick={() =>
-          addFlashcard({ id: "1", front: "Question", back: "Answer" })
-        }
-      >
-        Add Flashcard
-      </button>
-      <div className="grid grid-cols-3 gap-4">
-        {flashcards.map((card) => (
-          <Flashcard key={card.id} front={card.front} back={card.back} />
-        ))}
+      <div className="mb-6 flex flex-col sm:flex-row gap-4">
+        <Input
+          placeholder="Front"
+          value={front}
+          onChange={(e) => setFront(e.target.value)}
+        />
+        <Input
+          placeholder="Back"
+          value={back}
+          onChange={(e) => setBack(e.target.value)}
+        />
+        <Button onClick={handleAddFlashcard}>Add Flashcard</Button>
       </div>
-    </div>
+      {flashcards.length === 0 ? (
+        <p className="text-gray-500">No flashcards available.</p>
+      ) : (
+        <div>
+          <Flashcard
+            front={flashcards[currentIndex]?.front || ""}
+            back={flashcards[currentIndex]?.back || ""}
+          />
+          <Button onClick={handleNext} className="mt-4">
+            Next
+          </Button>
+        </div>
+      )}
+    </motion.div>
   );
 }

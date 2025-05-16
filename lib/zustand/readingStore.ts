@@ -5,41 +5,92 @@ type ReadingState = {
   readings: Reading[];
   sortKey: keyof Reading;
   sortOrder: "asc" | "desc";
-  addReading: (reading: Reading) => void;
+  fetchReadings: () => Promise<void>;
+  addReading: (reading: Omit<Reading, "id">) => Promise<void>;
+  updateReading: (id: string, updates: Partial<Reading>) => Promise<void>;
+  deleteReading: (id: string) => Promise<void>;
   sortReadings: (key: keyof Reading) => void;
 };
 
-// Sample readings (replace with API call in production)
-const sampleReadings: Reading[] = [
-  {
-    id: "1",
-    title: "To Kill a Mockingbird",
-    author: "Harper Lee",
-    date: "2025-01-15",
-    rating: 5,
-  },
-  {
-    id: "2",
-    title: "1984",
-    author: "George Orwell",
-    date: "2025-02-20",
-    rating: 4,
-  },
-  {
-    id: "3",
-    title: "Pride and Prejudice",
-    author: "Jane Austen",
-    date: "2025-03-10",
-    rating: 3,
-  },
-];
-
 export const useReadingStore = create<ReadingState>((set) => ({
-  readings: sampleReadings,
+  readings: [],
   sortKey: "date",
   sortOrder: "desc",
-  addReading: (reading) =>
-    set((state) => ({ readings: [...state.readings, reading] })),
+  fetchReadings: async () => {
+    try {
+      const response = await fetch("/api/reading");
+      const data = await response.json();
+      set((state) => ({
+        readings: data.sort((a: Reading, b: Reading) => {
+          const aValue = a[state.sortKey];
+          const bValue = b[state.sortKey];
+          return state.sortOrder === "asc"
+            ? aValue < bValue ? -1 : 1
+            : aValue > bValue ? -1 : 1;
+        }),
+      }));
+    } catch (error) {
+      console.error("Failed to fetch readings:", error);
+    }
+  },
+  addReading: async (reading) => {
+    try {
+      const response = await fetch("/api/reading", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(reading),
+      });
+      const newReading = await response.json();
+      set((state) => ({
+        readings: [...state.readings, newReading].sort((a, b) => {
+          const aValue = a[state.sortKey];
+          const bValue = b[state.sortKey];
+          return state.sortOrder === "asc"
+            ? aValue < bValue ? -1 : 1
+            : aValue > bValue ? -1 : 1;
+        }),
+      }));
+    } catch (error) {
+      console.error("Failed to add reading:", error);
+    }
+  },
+  updateReading: async (id, updates) => {
+    try {
+      const response = await fetch("/api/reading", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, ...updates }),
+      });
+      const updatedReading = await response.json();
+      set((state) => ({
+        readings: state.readings
+          .map((r) => (r.id === id ? updatedReading : r))
+          .sort((a, b) => {
+            const aValue = a[state.sortKey];
+            const bValue = b[state.sortKey];
+            return state.sortOrder === "asc"
+              ? aValue < bValue ? -1 : 1
+              : aValue > bValue ? -1 : 1;
+          }),
+      }));
+    } catch (error) {
+      console.error("Failed to update reading:", error);
+    }
+  },
+  deleteReading: async (id) => {
+    try {
+      await fetch("/api/reading", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      set((state) => ({
+        readings: state.readings.filter((r) => r.id !== id),
+      }));
+    } catch (error) {
+      console.error("Failed to delete reading:", error);
+    }
+  },
   sortReadings: (key) =>
     set((state) => {
       const isSameKey = state.sortKey === key;

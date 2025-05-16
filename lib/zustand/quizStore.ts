@@ -8,63 +8,30 @@ type QuizState = {
   answeredQuestions: string[];
   score: number;
   correctAnswers: number;
+  fetchQuestions: () => Promise<void>;
   selectAnswer: (answer: string) => void;
   nextQuestion: () => void;
   resetQuiz: () => void;
 };
 
-// Sample question pool with difficulty levels (replace with API call in production)
-const questionPool: QuizQuestion[] = [
-  {
-    id: "1",
-    text: "What is the capital of France?",
-    options: ["Paris", "London", "Berlin", "Madrid"],
-    correctAnswer: "Paris",
-    difficulty: "easy",
-  },
-  {
-    id: "2",
-    text: "Which planet is known as the Red Planet?",
-    options: ["Mars", "Jupiter", "Venus", "Mercury"],
-    correctAnswer: "Mars",
-    difficulty: "easy",
-  },
-  {
-    id: "3",
-    text: "What is the derivative of x^2?",
-    options: ["2x", "x^2", "2", "x"],
-    correctAnswer: "2x",
-    difficulty: "medium",
-  },
-  {
-    id: "4",
-    text: "What is the chemical symbol for Gold?",
-    options: ["Au", "Ag", "Fe", "Cu"],
-    correctAnswer: "Au",
-    difficulty: "medium",
-  },
-  {
-    id: "5",
-    text: "Solve: ∫(0 to 1) x^2 dx",
-    options: ["1/3", "1/2", "1", "2/3"],
-    correctAnswer: "1/3",
-    difficulty: "hard",
-  },
-  {
-    id: "6",
-    text: "What is the primary source of energy for Earth'sclimate system?",
-    options: ["Sun", "Geothermal", "Nuclear", "Tides"],
-    correctAnswer: "Sun",
-    difficulty: "hard",
-  },
-];
-
 export const useQuizStore = create<QuizState>((set, get) => ({
-  questions: questionPool,
-  currentQuestion: questionPool.find((q) => q.difficulty === "easy") || null,
+  questions: [],
+  currentQuestion: null,
   answeredQuestions: [],
   score: 0,
   correctAnswers: 0,
+  fetchQuestions: async () => {
+    try {
+      const response = await fetch("/api/quiz");
+      const data = await response.json();
+      set({
+        questions: data,
+        currentQuestion: data.find((q: QuizQuestion) => q.difficulty === "easy") || data[0] || null,
+      });
+    } catch (error) {
+      console.error("Failed to fetch questions:", error);
+    }
+  },
   selectAnswer: (answer) =>
     set((state) => {
       if (!state.currentQuestion) return state;
@@ -86,10 +53,10 @@ export const useQuizStore = create<QuizState>((set, get) => ({
       return { currentQuestion: nextQuestion };
     }),
   resetQuiz: () =>
-    set({
-      currentQuestion: questionPool.find((q) => q.difficulty === "easy") || null,
+    set((state) => ({
+      currentQuestion: state.questions.find((q) => q.difficulty === "easy") || state.questions[0] || null,
       answeredQuestions: [],
       score: 0,
       correctAnswers: 0,
-    }),
+    })),
 }));

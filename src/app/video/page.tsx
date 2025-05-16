@@ -4,9 +4,14 @@ import { useVideoStore } from "@/lib/zustand/videoStore";
 import VideoPlayer from "@/components/video/VideoPlayer";
 import CommentTimeline from "@/components/video/CommentTimeline";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
 
 export default function VideoPage() {
-  const { videoUrl } = useVideoStore();
+  const { videoUrl, fetchVideoData } = useVideoStore();
+
+  useEffect(() => {
+    fetchVideoData("default"); // Use a default video ID or fetch a list
+  }, [fetchVideoData]);
 
   return (
     <motion.div

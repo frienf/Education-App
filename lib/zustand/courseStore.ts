@@ -8,49 +8,126 @@ type CourseState = {
   selectedTopic: string;
   selectedTime: string;
   filteredCourses: Course[];
+  fetchCourses: () => Promise<void>;
+  addCourse: (course: Omit<Course, "id">) => Promise<void>;
+  updateCourse: (id: string, updates: Partial<Course>) => Promise<void>;
+  deleteCourse: (id: string) => Promise<void>;
   setTopic: (topic: string) => void;
   setTime: (time: string) => void;
 };
 
-// Sample courses (replace with API call in production)
-const sampleCourses: Course[] = [
-  {
-    id: "1",
-    title: "Introduction to Algebra",
-    topic: "Math",
-    estimatedTime: 2,
-    description: "Learn the basics of algebra.",
-  },
-  {
-    id: "2",
-    title: "Physics Fundamentals",
-    topic: "Science",
-    estimatedTime: 3,
-    description: "Explore the principles of physics.",
-  },
-  {
-    id: "3",
-    title: "Calculus I",
-    topic: "Math",
-    estimatedTime: 4,
-    description: "Dive into differential calculus.",
-  },
-  {
-    id: "4",
-    title: "Chemistry Basics",
-    topic: "Science",
-    estimatedTime: 1,
-    description: "Understand chemical reactions.",
-  },
-];
-
 export const useCourseStore = create<CourseState>((set, get) => ({
-  courses: sampleCourses,
-  topics: ["All", ...new Set(sampleCourses.map((c) => c.topic))],
+  courses: [],
+  topics: ["All"],
   timeRanges: ["All", "<1 hour", "1-3 hours", ">3 hours"],
   selectedTopic: "All",
   selectedTime: "All",
-  filteredCourses: sampleCourses,
+  filteredCourses: [],
+  fetchCourses: async () => {
+    try {
+      const response = await fetch("/api/courses");
+      const data = await response.json();
+      const topics = ["All", ...new Set(data.map((c: Course) => c.topic))];
+      set({
+        courses: data,
+        topics,
+        filteredCourses: data,
+      });
+    } catch (error) {
+      console.error("Failed to fetch courses:", error);
+    }
+  },
+  addCourse: async (course) => {
+    try {
+      const response = await fetch("/api/courses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(course),
+      });
+      const newCourse = await response.json();
+      set((state) => {
+        const updatedCourses = [...state.courses, newCourse];
+        const topics = ["All", ...new Set(updatedCourses.map((c) => c.topic))];
+        return {
+          courses: updatedCourses,
+          topics,
+          filteredCourses: updatedCourses.filter(
+            (c) =>
+              (state.selectedTopic === "All" || c.topic === state.selectedTopic) &&
+              (state.selectedTime === "All" ||
+                (state.selectedTime === "<1 hour" && c.estimatedTime < 1) ||
+                (state.selectedTime === "1-3 hours" &&
+                  c.estimatedTime >= 1 &&
+                  c.estimatedTime <= 3) ||
+                (state.selectedTime === ">3 hours" && c.estimatedTime > 3))
+          ),
+        };
+      });
+    } catch (error) {
+      console.error("Failed to add course:", error);
+    }
+  },
+  updateCourse: async (id, updates) => {
+    try {
+      const response = await fetch("/api/courses", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, ...updates }),
+      });
+      const updatedCourse = await response.json();
+      set((state) => {
+        const updatedCourses = state.courses.map((c) =>
+          c.id === id ? updatedCourse : c
+        );
+        const topics = ["All", ...new Set(updatedCourses.map((c) => c.topic))];
+        return {
+          courses: updatedCourses,
+          topics,
+          filteredCourses: updatedCourses.filter(
+            (c) =>
+              (state.selectedTopic === "All" || c.topic === state.selectedTopic) &&
+              (state.selectedTime === "All" ||
+                (state.selectedTime === "<1 hour" && c.estimatedTime < 1) ||
+                (state.selectedTime === "1-3 hours" &&
+                  c.estimatedTime >= 1 &&
+                  c.estimatedTime <= 3) ||
+                (state.selectedTime === ">3 hours" && c.estimatedTime > 3))
+          ),
+        };
+      });
+    } catch (error) {
+      console.error("Failed to update course:", error);
+    }
+  },
+  deleteCourse: async (id) => {
+    try {
+      await fetch("/api/courses", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      set((state) => {
+        const updatedCourses = state.courses.filter((c) => c.id !== id);
+        const topics = ["All", ...new Set(updatedCourses.map((c) => c.topic))];
+        return {
+          courses: updatedCourses,
+          topics,
+          filteredCourses: updatedCourses.filter(
+            (c) =>
+              (state.selectedTopic === "All" || c.topic === state.selectedTopic) &&
+              (state.selectedTime === "All" ||
+                (state.selectedTime === "<1 hour" && c.estimatedTime < 1) ||
+                (state.selectedTime === "1-3 hours" &&
+                  c.estimatedTime >= 1 &&
+                  c.estimatedTime <= 3) ||
+                (state.selectedTime === ">3 hours" && c.estimatedTime > 3))
+          ),
+        };
+      });
+    } catch (error) {
+      console.error("Failed to delete course:", error);
+    }
+  },
   setTopic: (topic) =>
     set((state) => {
       const filtered = state.courses.filter(

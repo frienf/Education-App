@@ -4,29 +4,67 @@ import { Note } from "@/lib/types/note";
 type NoteState = {
   notes: Note[];
   selectedNoteId: string | null;
-  addNote: (note: Note) => void;
+  fetchNotes: () => Promise<void>;
+  addNote: (note: Omit<Note, "id" | "createdAt">) => Promise<void>;
+  updateNote: (id: string, updates: Partial<Note>) => Promise<void>;
+  deleteNote: (id: string) => Promise<void>;
   selectNote: (id: string) => void;
 };
 
-// Sample notes (replace with API call in production)
-const sampleNotes: Note[] = [
-  {
-    id: "1",
-    title: "Meeting Notes",
-    content: "# Meeting Notes\n- Discuss project timeline\n- Assign tasks",
-    createdAt: "2025-05-10T10:00:00Z",
-  },
-  {
-    id: "2",
-    title: "Ideas",
-    content: "## Brainstorming\n- New app feature\n- UI improvements",
-    createdAt: "2025-05-12T14:30:00Z",
-  },
-];
-
 export const useNoteStore = create<NoteState>((set) => ({
-  notes: sampleNotes,
+  notes: [],
   selectedNoteId: null,
-  addNote: (note) => set((state) => ({ notes: [...state.notes, note] })),
+  fetchNotes: async () => {
+    try {
+      const response = await fetch("/api/notes");
+      const data = await response.json();
+      set({ notes: data });
+    } catch (error) {
+      console.error("Failed to fetch notes:", error);
+    }
+  },
+  addNote: async (note) => {
+    try {
+      const response = await fetch("/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(note),
+      });
+      const newNote = await response.json();
+      set((state) => ({ notes: [...state.notes, newNote] }));
+    } catch (error) {
+      console.error("Failed to add note:", error);
+    }
+  },
+  updateNote: async (id, updates) => {
+    try {
+      const response = await fetch("/api/notes", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, ...updates }),
+      });
+      const updatedNote = await response.json();
+      set((state) => ({
+        notes: state.notes.map((n) => (n.id === id ? updatedNote : n)),
+      }));
+    } catch (error) {
+      console.error("Failed to update note:", error);
+    }
+  },
+  deleteNote: async (id) => {
+    try {
+      await fetch("/api/notes", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      set((state) => ({
+        notes: state.notes.filter((n) => n.id !== id),
+        selectedNoteId: state.selectedNoteId === id ? null : state.selectedNoteId,
+      }));
+    } catch (error) {
+      console.error("Failed to delete note:", error);
+    }
+  },
   selectNote: (id) => set({ selectedNoteId: id }),
 }));

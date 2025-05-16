@@ -6,20 +6,22 @@ import LivePreview from "@/components/notes/LivePreview";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function NotesPage() {
-  const { notes, addNote, selectNote, selectedNoteId } = useNoteStore();
+  const { notes, addNote, selectNote, selectedNoteId, fetchNotes } = useNoteStore();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+
+  useEffect(() => {
+    fetchNotes();
+  }, [fetchNotes]);
 
   const handleSave = () => {
     if (title.trim() && content.trim()) {
       addNote({
-        id: Date.now().toString(),
         title,
         content,
-        createdAt: new Date().toISOString(),
       });
       setTitle("");
       setContent("");
