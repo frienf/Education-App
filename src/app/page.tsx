@@ -49,15 +49,15 @@ export default function HomePage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6">
-        <Skeleton className="h-12 w-3/4 mx-auto mb-6" />
-        <Skeleton className="h-6 w-1/2 mx-auto mb-12" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      <div className="container mx-auto p-6 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
+        <Skeleton className="h-12 w-3/4 mb-6" />
+        <Skeleton className="h-6 w-1/2 mb-12" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 w-full">
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} className="h-32 w-full" />
           ))}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
           {[...Array(3)].map((_, i) => (
             <Skeleton key={i} className="h-48 w-full" />
           ))}
@@ -68,15 +68,15 @@ export default function HomePage() {
 
   return (
     <motion.div
-      className="container mx-auto p-6"
+      className="container mx-auto p-6 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
       {/* Hero Section */}
-      <section className="text-center mb-12 py-12 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg">
+      <section className="text-center mb-12 py-12 bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 rounded-lg border border-border/40 w-full max-w-4xl">
         <motion.h1
-          className="text-4xl sm:text-5xl font-bold mb-4"
+          className="text-4xl sm:text-5xl font-bold mb-4 text-foreground"
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
@@ -97,20 +97,22 @@ export default function HomePage() {
           transition={{ delay: 0.4 }}
         >
           <Link href="/courses">
-            <Button size="lg" className="text-lg">
+            <Button size="lg" className="text-lg bg-primary hover:bg-primary/90">
               Start Learning
             </Button>
           </Link>
         </motion.div>
       </section>
 
-      <Separator className="mb-12" />
+      <Separator className="mb-12 bg-border/40 w-full max-w-4xl" />
 
       {/* Feature Navigation */}
-      <section className="mb-12">
+      <section className="mb-12 w-full max-w-4xl">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-semibold">Explore Features</h2>
-          <Badge variant="secondary">{flashcards.length + dueSpacedFlashcards.length + courses.length + incompleteHabits.length} Total Items</Badge>
+          <h2 className="text-2xl font-semibold text-foreground">Explore Features</h2>
+          <Badge variant="secondary" className="bg-secondary text-secondary-foreground">
+            {flashcards.length + dueSpacedFlashcards.length + courses.length + incompleteHabits.length} Total Items
+          </Badge>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
@@ -125,14 +127,14 @@ export default function HomePage() {
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 300 }}
               >
-                <Card className="h-full hover:shadow-lg transition-shadow">
+                <Card className="h-full hover:shadow-lg transition-shadow border-border/40 bg-card">
                   <CardHeader>
-                    <CardTitle className="flex items-center justify-between gap-2">
+                    <CardTitle className="flex items-center justify-between gap-2 text-card-foreground">
                       <div className="flex items-center gap-2">
                         <feature.icon className="h-5 w-5" />
                         {feature.title}
                       </div>
-                      <Badge>{feature.count}</Badge>
+                      <Badge className="bg-primary text-primary-foreground">{feature.count}</Badge>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -147,20 +149,22 @@ export default function HomePage() {
         </div>
       </section>
 
-      <Separator className="mb-12" />
+      <Separator className="mb-12 bg-border/40 w-full max-w-4xl" />
 
       {/* Dashboard Overview */}
-      <section>
-        <h2 className="text-2xl font-semibold mb-6">Your Learning Dashboard</h2>
+      <section className="w-full max-w-4xl">
+        <h2 className="text-2xl font-semibold mb-6 text-foreground text-center">Your Learning Dashboard</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Spaced Repetition Due */}
-          <Card>
+          <Card className="border-border/40 bg-card">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-card-foreground">
                 <Clock className="h-5 w-5" />
                 Spaced Repetition
                 {dueSpacedFlashcards.length > 0 && (
-                  <Badge variant="destructive">{dueSpacedFlashcards.length} Due</Badge>
+                  <Badge variant="destructive" className="bg-destructive text-destructive-foreground">
+                    {dueSpacedFlashcards.length} Due
+                  </Badge>
                 )}
               </CardTitle>
             </CardHeader>
@@ -171,7 +175,7 @@ export default function HomePage() {
                 <ul className="space-y-2">
                   {dueSpacedFlashcards.slice(0, 3).map((card) => (
                     <li key={card.id} className="truncate">
-                      <Link href="/spaced-repetition" className="hover:underline">
+                      <Link href="/spaced-repetition" className="text-primary hover:text-primary/90 hover:underline">
                         {card.front}
                       </Link>
                     </li>
@@ -180,7 +184,7 @@ export default function HomePage() {
               )}
               {dueSpacedFlashcards.length > 0 && (
                 <Link href="/spaced-repetition">
-                  <Button variant="link" className="mt-2">
+                  <Button variant="link" className="mt-2 text-primary hover:text-primary/90">
                     Review Now
                   </Button>
                 </Link>
@@ -189,13 +193,15 @@ export default function HomePage() {
           </Card>
 
           {/* Incomplete Habits */}
-          <Card>
+          <Card className="border-border/40 bg-card">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-card-foreground">
                 <CheckCircle className="h-5 w-5" />
                 Habits
                 {incompleteHabits.length > 0 && (
-                  <Badge variant="destructive">{incompleteHabits.length} Pending</Badge>
+                  <Badge variant="destructive" className="bg-destructive text-destructive-foreground">
+                    {incompleteHabits.length} Pending
+                  </Badge>
                 )}
               </CardTitle>
             </CardHeader>
@@ -206,7 +212,7 @@ export default function HomePage() {
                 <ul className="space-y-2">
                   {incompleteHabits.slice(0, 3).map((habit) => (
                     <li key={habit.id} className="truncate">
-                      <Link href="/habits" className="hover:underline">
+                      <Link href="/habits" className="text-primary hover:text-primary/90 hover:underline">
                         {habit.name}
                       </Link>
                     </li>
@@ -215,7 +221,7 @@ export default function HomePage() {
               )}
               {incompleteHabits.length > 0 && (
                 <Link href="/habits">
-                  <Button variant="link" className="mt-2">
+                  <Button variant="link" className="mt-2 text-primary hover:text-primary/90">
                     View Habits
                   </Button>
                 </Link>
@@ -224,13 +230,13 @@ export default function HomePage() {
           </Card>
 
           {/* Recent Courses */}
-          <Card>
+          <Card className="border-border/40 bg-card">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-card-foreground">
                 <PenTool className="h-5 w-5" />
                 Recent Courses
                 {recentCourses.length > 0 && (
-                  <Badge>{recentCourses.length} Available</Badge>
+                  <Badge className="bg-primary text-primary-foreground">{recentCourses.length} Available</Badge>
                 )}
               </CardTitle>
             </CardHeader>
@@ -241,7 +247,7 @@ export default function HomePage() {
                 <ul className="space-y-2">
                   {recentCourses.map((course) => (
                     <li key={course.id} className="truncate">
-                      <Link href="/courses" className="hover:underline">
+                      <Link href="/courses" className="text-primary hover:text-primary/90 hover:underline">
                         {course.title}
                       </Link>
                     </li>
@@ -249,7 +255,7 @@ export default function HomePage() {
                 </ul>
               )}
               <Link href="/courses">
-                <Button variant="link" className="mt-2">
+                <Button variant="link" className="mt-2 text-primary hover:text-primary/90">
                   Explore Courses
                 </Button>
               </Link>

@@ -32,8 +32,8 @@ export function Navigation() {
   const pathname = usePathname();
 
   return (
-    <nav className="border-b">
-      <div className="flex h-16 items-center px-4">
+    <nav className="bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 border-b border-border/40 backdrop-blur-sm">
+      <div className="flex h-16 items-center px-4 max-w-7xl mx-auto">
         <div className="flex items-center space-x-4 lg:space-x-6">
           {navigationItems.map((item) => {
             const Icon = item.icon;
@@ -42,8 +42,8 @@ export function Navigation() {
                 <Button
                   variant="ghost"
                   className={cn(
-                    "flex items-center gap-2",
-                    pathname === item.href && "bg-muted"
+                    "flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors",
+                    pathname === item.href && "bg-primary/10 text-foreground"
                   )}
                 >
                   <Icon className="h-4 w-4" />
