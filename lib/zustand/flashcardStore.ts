@@ -1,7 +1,5 @@
-// lib/zustand/flashcardStore.ts
 import { create } from "zustand";
 import { Flashcard } from "@/lib/types/flashcard";
-
 interface FlashcardState {
   flashcards: Flashcard[];
   fetchFlashcards: () => Promise<void>;
@@ -9,7 +7,6 @@ interface FlashcardState {
   updateFlashcard: (flashcard: Flashcard) => Promise<void>;
   deleteFlashcard: (id: string) => Promise<void>;
 }
-
 export const useFlashcardStore = create<FlashcardState>((set) => ({
   flashcards: [],
   fetchFlashcards: async () => {

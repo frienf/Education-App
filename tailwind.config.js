@@ -6,7 +6,7 @@ module.exports = {
       "./lib/**/*.{js,ts,jsx,tsx,mdx}",
     ],
     theme: {
-      extend: {},
+      extend: {dark:bg-gray-800},
     },
     plugins: [],
   };
