@@ -6,42 +6,62 @@ import { useCourseStore } from "@/lib/zustand/courseStore";
 import { useHabitStore } from "@/lib/zustand/habitStore";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { cn } from "@/src/lib/utils";
 import { Loader2, Book, Clock, CheckCircle, PenTool } from "lucide-react";
 import toast from "react-hot-toast";
-import { Flashcard } from "@/lib/types/spacedRepetition";
 
 export default function HomePage() {
-  const { flashcards, fetchFlashcards } = useFlashcardStore();
-  const { cards: spacedFlashcards, fetchCards: fetchSpacedFlashcards } = useSpacedRepetitionStore();
-  const { courses, fetchCourses } = useCourseStore();
-  const { habits, fetchHabits } = useHabitStore();
+  const { flashcards = [], fetchFlashcards } = useFlashcardStore();
+  const { cards: spacedFlashcards = [], fetchCards: fetchSpacedFlashcards } = useSpacedRepetitionStore();
+  const { courses = [], fetchCourses } = useCourseStore();
+  const { habits = [], fetchHabits } = useHabitStore();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    console.log("Fetching data for home page...");
     Promise.all([
-      fetchFlashcards(),
-      fetchSpacedFlashcards(),
-      fetchCourses(),
-      fetchHabits(),
+      fetchFlashcards().catch((err) => console.error("Flashcards fetch error:", err)),
+      fetchSpacedFlashcards().catch((err) => console.error("Spaced flashcards fetch error:", err)),
+      fetchCourses().catch((err) => console.error("Courses fetch error:", err)),
+      fetchHabits().catch((err) => console.error("Habits fetch error:", err)),
     ])
-      .catch(() => toast.error("Failed to load some data"))
-      .finally(() => setIsLoading(false));
+      .catch((err) => {
+        console.error("Combined fetch error:", err);
+        toast.error("Failed to load some data");
+      })
+      .finally(() => {
+        setIsLoading(false);
+        console.log("Fetch completed:", { flashcards, spacedFlashcards, courses, habits });
+      });
   }, [fetchFlashcards, fetchSpacedFlashcards, fetchCourses, fetchHabits]);
 
-  const dueSpacedFlashcards = spacedFlashcards.filter(
-    (f: Flashcard) => new Date(f.nextReview) <= new Date()
-  );
-  const incompleteHabits = habits.filter((h) => !h.completed);
-  const recentCourses = courses.slice(0, 3); // Show up to 3 recent courses
+  const dueSpacedFlashcards = Array.isArray(spacedFlashcards)
+    ? spacedFlashcards.filter((f) => new Date(f.nextReview) <= new Date())
+    : [];
+  const incompleteHabits = Array.isArray(habits) ? habits.filter((h) => !h.completed) : [];
+  const recentCourses = Array.isArray(courses) ? courses.slice(0, 3) : [];
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6 flex items-center justify-center min-h-[calc(100vh-4rem)]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="container mx-auto p-6">
+        <Skeleton className="h-12 w-3/4 mx-auto mb-6" />
+        <Skeleton className="h-6 w-1/2 mx-auto mb-12" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} className="h-32 w-full" />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(3)].map((_, i) => (
+            <Skeleton key={i} className="h-48 w-full" />
+          ))}
+        </div>
       </div>
     );
   }
@@ -84,9 +104,14 @@ export default function HomePage() {
         </motion.div>
       </section>
 
+      <Separator className="mb-12" />
+
       {/* Feature Navigation */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-6">Explore Features</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-semibold">Explore Features</h2>
+          <Badge variant="secondary">{flashcards.length + dueSpacedFlashcards.length + courses.length + incompleteHabits.length} Total Items</Badge>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             { title: "Flashcards", icon: Book, href: "/flashcards", count: flashcards.length },
@@ -102,9 +127,12 @@ export default function HomePage() {
               >
                 <Card className="h-full hover:shadow-lg transition-shadow">
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <feature.icon className="h-5 w-5" />
-                      {feature.title}
+                    <CardTitle className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <feature.icon className="h-5 w-5" />
+                        {feature.title}
+                      </div>
+                      <Badge>{feature.count}</Badge>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -119,6 +147,8 @@ export default function HomePage() {
         </div>
       </section>
 
+      <Separator className="mb-12" />
+
       {/* Dashboard Overview */}
       <section>
         <h2 className="text-2xl font-semibold mb-6">Your Learning Dashboard</h2>
@@ -129,6 +159,9 @@ export default function HomePage() {
               <CardTitle className="flex items-center gap-2">
                 <Clock className="h-5 w-5" />
                 Spaced Repetition
+                {dueSpacedFlashcards.length > 0 && (
+                  <Badge variant="destructive">{dueSpacedFlashcards.length} Due</Badge>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -161,6 +194,9 @@ export default function HomePage() {
               <CardTitle className="flex items-center gap-2">
                 <CheckCircle className="h-5 w-5" />
                 Habits
+                {incompleteHabits.length > 0 && (
+                  <Badge variant="destructive">{incompleteHabits.length} Pending</Badge>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -193,6 +229,9 @@ export default function HomePage() {
               <CardTitle className="flex items-center gap-2">
                 <PenTool className="h-5 w-5" />
                 Recent Courses
+                {recentCourses.length > 0 && (
+                  <Badge>{recentCourses.length} Available</Badge>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent>

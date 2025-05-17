@@ -4,6 +4,7 @@ import { useFlashcardStore } from "@/lib/zustand/flashcardStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -110,8 +111,9 @@ export default function FlashcardDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6 flex items-center justify-center min-h-[calc(100vh-4rem)]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="container mx-auto p-6">
+        <Skeleton className="h-8 w-1/4 mb-6" />
+        <Skeleton className="h-64 w-full" />
       </div>
     );
   }

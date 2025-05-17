@@ -25,6 +25,7 @@ export default function SpacedRepetitionPage() {
     }
   };
 
+  
   return (
     <motion.div
       className="container mx-auto p-4"
