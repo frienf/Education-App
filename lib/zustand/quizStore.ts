@@ -81,18 +81,25 @@ export const useQuizStore = create<QuizState>((set, get) => ({
           : q
       );
 
-      // Update the current question
-      const updatedCurrentQuestion = updatedQuestions.find(q => q.id === state.currentQuestion?.id) || null;
+      // Increment question counter, but don't exceed total questions
+      const newQuestionCounter = Math.min(state.questionCounter + 1, state.questions.length);
 
-      // Increment question counter before returning
-      const newQuestionCounter = state.questionCounter + 1;
+      // Only get next question if we haven't reached the end
+      const nextQuestion = newQuestionCounter < state.questions.length
+        ? selectNextQuestion(
+            updatedQuestions,
+            [...state.answeredQuestions, state.currentQuestion.id],
+            newCorrectAnswers,
+            newQuestionCounter
+          )
+        : null;
 
       return {
         score: newScore,
         correctAnswers: newCorrectAnswers,
         answeredQuestions: [...state.answeredQuestions, state.currentQuestion.id],
         questions: updatedQuestions,
-        currentQuestion: updatedCurrentQuestion,
+        currentQuestion: nextQuestion,
         questionCounter: newQuestionCounter
       };
     }),

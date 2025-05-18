@@ -110,7 +110,7 @@ export default function SpacedRepetitionPage() {
       </Card>
 
       {/* Review Section */}
-      <Card className="p-6">
+      <Card className="p-6 ">
         <h2 className="text-xl font-semibold mb-4">Review Cards</h2>
         {cardsDue.length === 0 ? (
           <p className="text-muted-foreground text-center py-8">No cards due for review.</p>

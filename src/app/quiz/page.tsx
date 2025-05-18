@@ -36,22 +36,8 @@ export default function QuizPage() {
       return;
     }
 
-    // Select answer and get the next question
+    // Select answer - this will handle the state update, counter increment, and next question selection
     selectAnswer(answer);
-    
-    // Use adaptive logic to select the next question
-    const nextQuestion = selectNextQuestion(
-      questions,
-      answeredQuestions,
-      correctAnswers,
-      questionCounter
-    );
-
-    if (nextQuestion) {
-      setCurrentQuestion(nextQuestion);
-    } else {
-      router.push("/quiz/results");
-    }
   };
 
   if (!currentQuestion) {
