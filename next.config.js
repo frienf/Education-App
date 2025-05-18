@@ -15,15 +15,7 @@ const nextConfig = {
     // Enable if using App Router features that need optimization
     optimizePackageImports: ['framer-motion', 'zustand', '@supabase/supabase-js'],
   },
-  async rewrites() {
-    return [
-      {
-        // Proxy Supabase auth callbacks for cleaner URLs
-        source: '/auth/callback',
-        destination: '/api/auth/[...supabase]',
-      },
-    ];
-  },
+  
   // Ensure TypeScript errors don't break production builds (optional)
   typescript: {
     ignoreBuildErrors: false, // Set to true if you want to allow builds with TS errors
