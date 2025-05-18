@@ -10,13 +10,13 @@ export default function CommentTimeline() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Comments Timeline</CardTitle>
+        <CardTitle>Comments</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-2 max-h-[400px] overflow-y-auto">
-          {comments.map((comment) => (
+          {(comments || []).map((comment, index) => (
             <motion.div
-              key={comment.id}
+              key={comment.id || `comment-${index}-${Date.now()}`}
               className="p-2 border rounded cursor-pointer hover:bg-gray-100"
               onClick={() => seekTo(comment.timestamp)}
               initial={{ opacity: 0, y: 10 }}

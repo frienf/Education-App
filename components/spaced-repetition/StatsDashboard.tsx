@@ -4,9 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export default function StatsDashboard() {
   const { cards, cardsDue } = useSpacedRepetitionStore();
 
-  const totalReviews = cards.reduce((sum, card) => sum + card.reviews, 0);
-  const totalCorrect = cards.reduce((sum, card) => sum + card.correctReviews, 0);
-  const accuracy = totalReviews > 0 ? ((totalCorrect / totalReviews) * 100).toFixed(2) : 0;
+  const totalReviews = cards.reduce((sum, card) => sum + (card.reviews || 0), 0);
+  const totalCorrect = cards.reduce((sum, card) => sum + (card.correctReviews || 0), 0);
+  const accuracy = totalReviews > 0 ? ((totalCorrect / totalReviews) * 100).toFixed(1) : "0.0";
 
   return (
     <Card className="mb-6">

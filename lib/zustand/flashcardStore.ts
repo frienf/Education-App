@@ -1,12 +1,15 @@
 import { create } from "zustand";
 import { Flashcard } from "@/lib/types/flashcard";
+
 interface FlashcardState {
   flashcards: Flashcard[];
   fetchFlashcards: () => Promise<void>;
   addFlashcard: (flashcard: Omit<Flashcard, "id">) => Promise<void>;
   updateFlashcard: (flashcard: Flashcard) => Promise<void>;
   deleteFlashcard: (id: string) => Promise<void>;
+  setFlashcards: (flashcards: Flashcard[]) => void;
 }
+
 export const useFlashcardStore = create<FlashcardState>((set) => ({
   flashcards: [],
   fetchFlashcards: async () => {
@@ -72,4 +75,5 @@ export const useFlashcardStore = create<FlashcardState>((set) => ({
       throw error;
     }
   },
+  setFlashcards: (flashcards) => set({ flashcards }),
 }));

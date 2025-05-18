@@ -3,83 +3,118 @@ import { supabase } from "@/src/lib/supabase";
 import { Flashcard } from "@/lib/types/spacedRepetition";
 
 export async function GET() {
-  const { data, error } = await supabase.from("spaced_repetition").select("*");
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  try {
+    const { data, error } = await supabase
+      .from("spaced_repetition")
+      .select("*")
+      .order("next_review", { ascending: true });
+
+    if (error) throw error;
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error("Error fetching flashcards:", error);
+    return NextResponse.json({ error: "Failed to fetch flashcards" }, { status: 500 });
   }
-  return NextResponse.json(data as Flashcard[]);
 }
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const newCard: Omit<
-      Flashcard,
-      "id" | "interval" | "ease" | "nextReview" | "reviews" | "correctReviews"
-    > = {
-      front: body.front,
-      back: body.back,
-    };
-    const { data, error } = await supabase
-      .from("spaced_repetition")
+    const card = await request.json();
+
+    // First, create a flashcard
+    const { data: flashcard, error: flashcardError } = await supabase
+      .from("flashcards")
       .insert({
-        ...newCard,
-        id: Date.now().toString(),
-        interval: 1,
-        ease: 2.5,
-        next_review: new Date().toISOString(),
-        reviews: 0,
-        correct_reviews: 0,
+        front: card.front,
+        back: card.back,
+        tags: []
       })
       .select()
       .single();
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+
+    if (flashcardError) {
+      console.error("Error creating flashcard:", flashcardError);
+      throw flashcardError;
     }
-    return NextResponse.json(data as Flashcard, { status: 201 });
+
+    // Then create the spaced repetition entry using the flashcard's ID
+    const { data, error } = await supabase
+      .from("spaced_repetition")
+      .insert({
+        id: flashcard.id,
+        front: card.front,
+        back: card.back,
+        interval: Math.floor(card.interval || 1),
+        ease: parseFloat((card.ease || 2.5).toString()),
+        next_review: card.nextReview,
+        reviews: 0,
+        correct_reviews: 0,
+        difficulty: card.difficulty || 'medium'
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error creating spaced repetition entry:", error);
+      throw error;
+    }
+
+    return NextResponse.json(data, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    console.error("Error adding flashcard:", error);
+    return NextResponse.json(
+      { error: "Failed to add flashcard" },
+      { status: 500 }
+    );
   }
 }
 
 export async function PUT(request: Request) {
   try {
-    const body = await request.json();
+    const card = await request.json();
+
     const { data, error } = await supabase
       .from("spaced_repetition")
       .update({
-        front: body.front,
-        back: body.back,
-        interval: body.interval,
-        ease: body.ease,
-        next_review: body.nextReview,
-        reviews: body.reviews,
-        correct_reviews: body.correctReviews,
+        interval: Math.floor(card.interval),
+        ease: parseFloat(card.ease.toString()),
+        next_review: card.nextReview,
+        reviews: card.reviews,
+        correct_reviews: card.correctReviews,
+        last_reviewed: new Date().toISOString(),
+        difficulty: card.difficulty
       })
-      .eq("id", body.id)
+      .eq("id", card.id)
       .select()
       .single();
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-    if (!data) {
-      return NextResponse.json({ error: "Flashcard not found" }, { status: 404 });
-    }
-    return NextResponse.json(data as Flashcard);
+
+    if (error) throw error;
+    return NextResponse.json(data);
   } catch (error) {
-    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    console.error("Error updating flashcard:", error);
+    return NextResponse.json(
+      { error: "Failed to update flashcard" },
+      { status: 500 }
+    );
   }
 }
 
 export async function DELETE(request: Request) {
   try {
     const { id } = await request.json();
-    const { error } = await supabase.from("spaced_repetition").delete().eq("id", id);
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-    return NextResponse.json({ message: "Flashcard deleted" });
+
+    const { error } = await supabase
+      .from("spaced_repetition")
+      .delete()
+      .eq("id", id);
+
+    if (error) throw error;
+    return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    console.error("Error deleting flashcard:", error);
+    return NextResponse.json(
+      { error: "Failed to delete flashcard" },
+      { status: 500 }
+    );
   }
 }

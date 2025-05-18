@@ -7,7 +7,15 @@ export async function GET() {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-  return NextResponse.json(data as QuizQuestion[]);
+  
+  // Parse the options JSON string for each question
+  const parsedData = data.map(question => ({
+    ...question,
+    options: JSON.parse(question.options),
+    correctAnswer: question.correct_answer // Map correct_answer to correctAnswer
+  }));
+
+  return NextResponse.json(parsedData as QuizQuestion[]);
 }
 
 export async function POST(request: Request) {

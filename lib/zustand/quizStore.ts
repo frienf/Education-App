@@ -8,10 +8,31 @@ type QuizState = {
   answeredQuestions: string[];
   score: number;
   correctAnswers: number;
+  questionCounter: number;
   fetchQuestions: () => Promise<void>;
   selectAnswer: (answer: string) => void;
   nextQuestion: () => void;
   resetQuiz: () => void;
+  setCurrentQuestion: (question: QuizQuestion) => void;
+};
+
+const validateQuestion = (question: any): QuizQuestion | null => {
+  if (!question) return null;
+  
+  // Ensure options is an array
+  const options = Array.isArray(question.options) 
+    ? question.options 
+    : typeof question.options === 'string' 
+      ? JSON.parse(question.options) 
+      : [];
+
+  return {
+    id: question.id,
+    text: question.text || '',
+    options: options,
+    correctAnswer: question.correctAnswer || '',
+    difficulty: question.difficulty || 'medium',
+  };
 };
 
 export const useQuizStore = create<QuizState>((set, get) => ({
@@ -20,26 +41,59 @@ export const useQuizStore = create<QuizState>((set, get) => ({
   answeredQuestions: [],
   score: 0,
   correctAnswers: 0,
+  questionCounter: 0,
   fetchQuestions: async () => {
     try {
       const response = await fetch("/api/quiz");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
+      
+      // Validate and transform the questions
+      const validatedQuestions = data.map(validateQuestion).filter(Boolean);
+      
       set({
-        questions: data,
-        currentQuestion: data.find((q: QuizQuestion) => q.difficulty === "easy") || data[0] || null,
+        questions: validatedQuestions,
+        currentQuestion: validatedQuestions[0] || null,
+        score: 0,
+        correctAnswers: 0,
+        answeredQuestions: [],
+        questionCounter: 0
       });
     } catch (error) {
       console.error("Failed to fetch questions:", error);
+      throw error;
     }
   },
   selectAnswer: (answer) =>
     set((state) => {
       if (!state.currentQuestion) return state;
+      
       const isCorrect = answer === state.currentQuestion.correctAnswer;
+      const newScore = isCorrect ? state.score + 1 : state.score;
+      const newCorrectAnswers = isCorrect ? state.correctAnswers + 1 : state.correctAnswers;
+      
+      // Update the questions array with the selected answer
+      const updatedQuestions = state.questions.map(q => 
+        q.id === state.currentQuestion?.id 
+          ? { ...q, selectedAnswer: answer }
+          : q
+      );
+
+      // Update the current question
+      const updatedCurrentQuestion = updatedQuestions.find(q => q.id === state.currentQuestion?.id) || null;
+
+      // Increment question counter before returning
+      const newQuestionCounter = state.questionCounter + 1;
+
       return {
-        score: isCorrect ? state.score + 1 : state.score,
-        correctAnswers: isCorrect ? state.correctAnswers + 1 : state.correctAnswers,
+        score: newScore,
+        correctAnswers: newCorrectAnswers,
         answeredQuestions: [...state.answeredQuestions, state.currentQuestion.id],
+        questions: updatedQuestions,
+        currentQuestion: updatedCurrentQuestion,
+        questionCounter: newQuestionCounter
       };
     }),
   nextQuestion: () =>
@@ -48,15 +102,19 @@ export const useQuizStore = create<QuizState>((set, get) => ({
         state.questions,
         state.answeredQuestions,
         state.correctAnswers,
-        state.answeredQuestions.length
+        state.questionCounter
       );
       return { currentQuestion: nextQuestion };
     }),
   resetQuiz: () =>
-    set((state) => ({
-      currentQuestion: state.questions.find((q) => q.difficulty === "easy") || state.questions[0] || null,
+    set({
+      currentQuestion: null,
       answeredQuestions: [],
       score: 0,
       correctAnswers: 0,
-    })),
+      questions: [],
+      questionCounter: 0
+    }),
+  setCurrentQuestion: (question) =>
+    set({ currentQuestion: question }),
 }));

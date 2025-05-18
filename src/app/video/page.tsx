@@ -25,9 +25,6 @@ export default function VideoPage() {
         <div className="lg:col-span-2">
           <VideoPlayer />
         </div>
-        <div>
-          <CommentTimeline />
-        </div>
       </div>
     </motion.div>
   );

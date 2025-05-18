@@ -40,6 +40,7 @@ export default function ReadingTable() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
+            className="border-b border-border/40"
           >
             <TableCell>{reading.title}</TableCell>
             <TableCell>{reading.author}</TableCell>

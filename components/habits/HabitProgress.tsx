@@ -16,10 +16,11 @@ export default function HabitProgress() {
         initial={{ width: 0 }}
         animate={{ width: `${progress}%` }}
         transition={{ duration: 0.5 }}
+        className="mb-6"
       >
         <Progress value={progress} className="w-full" />
       </motion.div>
-      <p className="text-sm text-gray-600 mt-1">
+      <p className="text-sm text-gray-600">
         {completedCount} of {habits.length} habits completed
       </p>
     </div>

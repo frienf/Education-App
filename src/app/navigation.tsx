@@ -14,6 +14,7 @@ import {
   FileText,
   GraduationCap,
   Brain,
+  HelpCircle,
 } from "lucide-react";
 
 const navigationItems = [
@@ -26,6 +27,7 @@ const navigationItems = [
   { name: "Notes", href: "/notes", icon: FileText },
   { name: "Video", href: "/video", icon: Video },
   { name: "Lessons", href: "/lessons", icon: PenTool },
+  { name: "Quiz", href: "/quiz", icon: HelpCircle },
 ];
 
 export function Navigation() {

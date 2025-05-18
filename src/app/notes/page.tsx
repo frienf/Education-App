@@ -28,6 +28,31 @@ export default function NotesPage() {
     }
   };
 
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) {
+      return "No date";
+    }
+    
+    try {
+      // Handle PostgreSQL timestamp format
+      const date = new Date(dateString.replace('+00', 'Z'));
+      if (isNaN(date.getTime())) {
+        return "Invalid Date";
+      }
+      return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZoneName: 'short'
+      });
+    } catch (error) {
+      console.error("Date formatting error:", error);
+      return "Invalid Date";
+    }
+  };
+
   return (
     <motion.div
       className="container mx-auto p-4"
@@ -39,29 +64,29 @@ export default function NotesPage() {
       <div className="mb-6 flex flex-col sm:flex-row gap-4">
         <Input
           placeholder="Note Title"
-          value={title}
+          value={title ?? ""}
           onChange={(e) => setTitle(e.target.value)}
         />
         <Button onClick={handleSave}>Save Note</Button>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <MarkdownEditor
-          content={content}
+          content={content ?? ""}
           onChange={setContent}
         />
-        <LivePreview content={content} />
+        <LivePreview content={content ?? ""} />
       </div>
       <div className="mt-6">
         <h2 className="text-lg font-semibold mb-2">Saved Notes</h2>
         <div className="space-y-2">
           {notes.map((note) => (
             <motion.div
-              key={note.id}
+              key={`note-${note.id}`}
               className={`p-2 border rounded cursor-pointer ${selectedNoteId === note.id ? "bg-gray-100" : ""}`}
               onClick={() => {
                 selectNote(note.id);
-                setTitle(note.title);
-                setContent(note.content);
+                setTitle(note.title ?? "");
+                setContent(note.content ?? "");
               }}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -69,7 +94,7 @@ export default function NotesPage() {
             >
               <p className="font-medium">{note.title}</p>
               <p className="text-sm text-gray-500">
-                {new Date(note.createdAt).toLocaleDateString()}
+                {formatDate(note.createdAt)}
               </p>
             </motion.div>
           ))}

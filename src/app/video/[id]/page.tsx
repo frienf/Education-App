@@ -30,9 +30,6 @@ export default function VideoDetailPage({ params }: Props) {
         <div className="lg:col-span-2">
           <VideoPlayer />
         </div>
-        <div>
-          <CommentTimeline />
-        </div>
       </div>
     </motion.div>
   );

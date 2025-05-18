@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     const newCourse: Omit<Course, "id"> = {
       title: parsed.data.title,
       topic: parsed.data.topic,
-      estimated_time: parsed.data.estimatedTime,
+      estimatedTime: parsed.data.estimatedTime,
       description: parsed.data.description,
     };
     const { data, error } = await supabase

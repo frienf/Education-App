@@ -4,4 +4,5 @@ export type QuizQuestion = {
   options: string[];
   correctAnswer: string;
   difficulty: "easy" | "medium" | "hard";
+  selectedAnswer?: string;
 };

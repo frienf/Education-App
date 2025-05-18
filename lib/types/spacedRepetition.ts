@@ -7,4 +7,5 @@ export type Flashcard = {
     nextReview: string;
     reviews: number;
     correctReviews: number;
+    difficulty: 'easy' | 'medium' | 'hard';
   };

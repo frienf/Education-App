@@ -19,6 +19,9 @@ export const useReadingStore = create<ReadingState>((set) => ({
   fetchReadings: async () => {
     try {
       const response = await fetch("/api/reading");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
       set((state) => ({
         readings: data.sort((a: Reading, b: Reading) => {
@@ -31,6 +34,7 @@ export const useReadingStore = create<ReadingState>((set) => ({
       }));
     } catch (error) {
       console.error("Failed to fetch readings:", error);
+      throw error;
     }
   },
   addReading: async (reading) => {
@@ -40,6 +44,12 @@ export const useReadingStore = create<ReadingState>((set) => ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reading),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
       const newReading = await response.json();
       set((state) => ({
         readings: [...state.readings, newReading].sort((a, b) => {
@@ -52,6 +62,7 @@ export const useReadingStore = create<ReadingState>((set) => ({
       }));
     } catch (error) {
       console.error("Failed to add reading:", error);
+      throw error;
     }
   },
   updateReading: async (id, updates) => {
@@ -61,6 +72,12 @@ export const useReadingStore = create<ReadingState>((set) => ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, ...updates }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
       const updatedReading = await response.json();
       set((state) => ({
         readings: state.readings
@@ -75,20 +92,28 @@ export const useReadingStore = create<ReadingState>((set) => ({
       }));
     } catch (error) {
       console.error("Failed to update reading:", error);
+      throw error;
     }
   },
   deleteReading: async (id) => {
     try {
-      await fetch("/api/reading", {
+      const response = await fetch("/api/reading", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
       set((state) => ({
         readings: state.readings.filter((r) => r.id !== id),
       }));
     } catch (error) {
       console.error("Failed to delete reading:", error);
+      throw error;
     }
   },
   sortReadings: (key) =>

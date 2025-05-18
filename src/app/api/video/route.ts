@@ -43,20 +43,43 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const newComment: Omit<Comment, "id"> & { videoId: string } = {
+    
+    // Check if video exists
+    const { data: video, error: videoError } = await supabase
+      .from("videos")
+      .select("id")
+      .eq("id", body.videoId)
+      .single();
+
+    if (videoError || !video) {
+      return NextResponse.json({ error: "Video not found" }, { status: 404 });
+    }
+
+    const newComment: Omit<Comment, "id"> = {
       text: body.text,
       timestamp: body.timestamp,
       video_id: body.videoId,
     };
+
     const { data, error } = await supabase
       .from("comments")
-      .insert({ ...newComment, id: `${body.videoId}-${Date.now()}` })
+      .insert(newComment)
       .select()
       .single();
+
     if (error) {
+      console.error("Database error:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    return NextResponse.json(data as Comment, { status: 201 });
+    if (!data) {
+      return NextResponse.json({ error: "Failed to create comment" }, { status: 500 });
+    }
+    return NextResponse.json({
+      id: data.id,
+      text: data.text || "",
+      timestamp: data.timestamp || 0,
+      video_id: data.video_id
+    } as Comment, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }

@@ -13,7 +13,7 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { cn } from "@/src/lib/utils";
-import { Loader2, Book, Clock, CheckCircle, PenTool } from "lucide-react";
+import { Loader2, Book, Clock, CheckCircle, PenTool, HelpCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function HomePage() {
@@ -74,35 +74,111 @@ export default function HomePage() {
       transition={{ duration: 0.5 }}
     >
       {/* Hero Section */}
-      <section className="text-center mb-12 py-12 bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 rounded-lg border border-border/40 w-full max-w-4xl">
-        <motion.h1
-          className="text-4xl sm:text-5xl font-bold mb-4 text-foreground"
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          Welcome to LearnHub
-        </motion.h1>
-        <motion.p
-          className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto"
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3 }}
-        >
-          Master your skills with flashcards, spaced repetition, courses, and habit tracking.
-        </motion.p>
+      <motion.section 
+        className="text-center mb-12 py-16 bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 rounded-lg border border-border/40 w-full max-w-4xl relative overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        {/* Animated background gradient */}
         <motion.div
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.4 }}
-        >
-          <Link href="/courses">
-            <Button size="lg" className="text-lg bg-primary hover:bg-primary/90">
-              Start Learning
-            </Button>
-          </Link>
-        </motion.div>
-      </section>
+          className="absolute inset-0 bg-gradient-to-r from-primary/5 via-secondary/5 to-primary/5"
+          animate={{
+            backgroundPosition: ["0% 0%", "100% 100%"],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            repeatType: "reverse",
+          }}
+        />
+
+        <div className="relative z-10 space-y-8">
+          <motion.div
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ 
+              delay: 0.2,
+              type: "spring",
+              stiffness: 100,
+              damping: 10
+            }}
+            className="space-y-4"
+          >
+            <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-white">
+              Welcome to LearnHub
+            </h1>
+            <div className="h-1 w-24 bg-gradient-to-r from-primary to-secondary mx-auto rounded-full" />
+          </motion.div>
+
+          <motion.p
+            className="text-xl sm:text-2xl text-gray-200 max-w-2xl mx-auto leading-relaxed"
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ 
+              delay: 0.3,
+              type: "spring",
+              stiffness: 100,
+              damping: 10
+            }}
+          >
+            Master your skills with{" "}
+            <span className="text-primary-foreground font-medium">flashcards</span>,{" "}
+            <span className="text-secondary-foreground font-medium">spaced repetition</span>,{" "}
+            <span className="text-primary-foreground font-medium">courses</span>, and{" "}
+            <span className="text-secondary-foreground font-medium">habit tracking</span>.
+          </motion.p>
+
+          <motion.div
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ 
+              delay: 0.4,
+              type: "spring",
+              stiffness: 100,
+              damping: 10
+            }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="pt-4"
+          >
+            <Link href="/courses">
+              <Button 
+                size="lg" 
+                className="text-lg bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white px-8 py-6 shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                Start Learning
+              </Button>
+            </Link>
+          </motion.div>
+        </div>
+
+        {/* Floating elements */}
+        <motion.div
+          className="absolute top-1/4 left-1/4 w-4 h-4 bg-primary/20 rounded-full"
+          animate={{
+            y: [0, -20, 0],
+            opacity: [0.5, 0.8, 0.5],
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 w-6 h-6 bg-secondary/20 rounded-full"
+          animate={{
+            y: [0, 20, 0],
+            opacity: [0.5, 0.8, 0.5],
+          }}
+          transition={{
+            duration: 4,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      </motion.section>
 
       <Separator className="mb-12 bg-border/40 w-full max-w-4xl" />
 
@@ -120,6 +196,7 @@ export default function HomePage() {
             { title: "Spaced Repetition", icon: Clock, href: "/spaced-repetition", count: dueSpacedFlashcards.length },
             { title: "Courses", icon: PenTool, href: "/courses", count: courses.length },
             { title: "Habits", icon: CheckCircle, href: "/habits", count: incompleteHabits.length },
+            { title: "Quiz", icon: HelpCircle, href: "/quiz", count: 0 },
           ].map((feature) => (
             <Link key={feature.href} href={feature.href}>
               <motion.div
