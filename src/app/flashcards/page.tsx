@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import { Plus, BookOpen, Shuffle } from "lucide-react";
+import { Plus, BookOpen } from "lucide-react";
 
 export default function FlashcardsPage() {
   const { flashcards, addFlashcard, fetchFlashcards, setFlashcards } = useFlashcardStore();
@@ -24,14 +24,14 @@ export default function FlashcardsPage() {
 
   const handleAddFlashcard = async () => {
     try {
-    if (front.trim() && back.trim()) {
+      if (front.trim() && back.trim()) {
         await addFlashcard({ front, back });
-      setFront("");
-      setBack("");
+        setFront("");
+        setBack("");
         setIsAdding(false);
       }
-    } catch (error) {
-      console.error("Error adding flashcard:", error);
+    } catch {
+      console.error("Error adding flashcard");
       // You might want to show an error message to the user here
     }
   };

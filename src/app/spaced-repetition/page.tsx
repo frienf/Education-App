@@ -54,8 +54,8 @@ export default function SpacedRepetitionPage() {
       toast.success("Card added successfully!");
       setFront("");
       setBack("");
-    } catch (error) {
-      console.error("Error adding card:", error);
+    } catch {
+      console.error("Error adding card");
       toast.error("Failed to add card. Please try again.");
     } finally {
       setIsAdding(false);

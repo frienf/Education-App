@@ -12,7 +12,6 @@ import { Separator } from "@/components/ui/separator";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { cn } from "@/src/lib/utils";
 import { Loader2, Book, Clock, CheckCircle, PenTool, HelpCircle } from "lucide-react";
 import toast from "react-hot-toast";
 

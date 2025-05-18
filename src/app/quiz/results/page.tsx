@@ -10,7 +10,7 @@ import { Trophy, RefreshCw, Home, CheckCircle2, XCircle } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 export default function QuizResultsPage() {
-  const { score, correctAnswers, answeredQuestions, resetQuiz, questions, questionCounter } = useQuizStore();
+  const { correctAnswers, answeredQuestions, resetQuiz, questions, questionCounter } = useQuizStore();
   const router = useRouter();
 
   const totalQuestions = questionCounter;

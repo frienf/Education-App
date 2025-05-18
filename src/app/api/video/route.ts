@@ -80,7 +80,7 @@ export async function POST(request: Request) {
       timestamp: data.timestamp || 0,
       video_id: data.video_id
     } as Comment, { status: 201 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 }
@@ -89,7 +89,7 @@ export async function PUT(request: Request) {
   try {
     const body = await request.json();
     const { data, error } = await supabase
-      .from("comments")
+      .from("videos")
       .update(body)
       .eq("id", body.id)
       .select()
@@ -98,10 +98,10 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
     if (!data) {
-      return NextResponse.json({ error: "Comment not found" }, { status: 404 });
+      return NextResponse.json({ error: "Video not found" }, { status: 404 });
     }
-    return NextResponse.json(data as Comment);
-  } catch (error) {
+    return NextResponse.json(data);
+  } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 }
@@ -109,12 +109,12 @@ export async function PUT(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const { id } = await request.json();
-    const { error } = await supabase.from("comments").delete().eq("id", id);
+    const { error } = await supabase.from("videos").delete().eq("id", id);
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    return NextResponse.json({ message: "Comment deleted" });
-  } catch (error) {
+    return NextResponse.json({ message: "Video deleted" });
+  } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 }

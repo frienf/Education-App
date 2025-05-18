@@ -37,9 +37,9 @@ export default function HabitsPage() {
       addHabit(habit);
       setNewHabit("");
       toast.success("Habit added successfully!");
-    } catch (error) {
+    } catch {
       toast.error("Failed to add habit");
-      console.error("Error adding habit:", error);
+      console.error("Error adding habit");
     } finally {
       setIsAdding(false);
     }
@@ -63,9 +63,9 @@ export default function HabitsPage() {
       
       const updatedHabit = await response.json();
       toggleHabit(updatedHabit.id);
-    } catch (error) {
+    } catch {
       toast.error("Failed to update habit");
-      console.error("Error updating habit:", error);
+      console.error("Error updating habit");
     }
   };
 

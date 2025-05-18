@@ -2,16 +2,19 @@
 
 import { useVideoStore } from "@/lib/zustand/videoStore";
 import VideoPlayer from "@/components/video/VideoPlayer";
-import CommentTimeline from "@/components/video/CommentTimeline";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 
 type Props = {
   params: { id: string };
+  searchParams: { [key: string]: string | string[] | undefined };
 };
 
 export default function VideoDetailPage({ params }: Props) {
-  const { setVideoId, videoUrl, fetchVideoData } = useVideoStore();
+  const { setVideoId, fetchVideoData } = useVideoStore();
 
   useEffect(() => {
     setVideoId(params.id);

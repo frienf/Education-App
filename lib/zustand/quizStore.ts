@@ -16,7 +16,15 @@ type QuizState = {
   setCurrentQuestion: (question: QuizQuestion) => void;
 };
 
-const validateQuestion = (question: any): QuizQuestion | null => {
+type RawQuestion = {
+  id: string;
+  text: string;
+  options: string[] | string;
+  correctAnswer: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+};
+
+const validateQuestion = (question: RawQuestion): QuizQuestion | null => {
   if (!question) return null;
   
   // Ensure options is an array
@@ -35,7 +43,7 @@ const validateQuestion = (question: any): QuizQuestion | null => {
   };
 };
 
-export const useQuizStore = create<QuizState>((set, get) => ({
+export const useQuizStore = create<QuizState>((set) => ({
   questions: [],
   currentQuestion: null,
   answeredQuestions: [],

@@ -47,8 +47,8 @@ export default function NotesPage() {
         minute: '2-digit',
         timeZoneName: 'short'
       });
-    } catch (error) {
-      console.error("Date formatting error:", error);
+    } catch {
+      console.error("Date formatting error");
       return "Invalid Date";
     }
   };

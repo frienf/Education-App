@@ -2,9 +2,11 @@
 
 import { useVideoStore } from "@/lib/zustand/videoStore";
 import VideoPlayer from "@/components/video/VideoPlayer";
-import CommentTimeline from "@/components/video/CommentTimeline";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 
 export default function VideoPage() {
   const { videoUrl, fetchVideoData } = useVideoStore();

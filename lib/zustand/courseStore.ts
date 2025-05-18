@@ -16,7 +16,7 @@ type CourseState = {
   setTime: (time: string) => void;
 };
 
-export const useCourseStore = create<CourseState>((set, get) => ({
+export const useCourseStore = create<CourseState>((set) => ({
   courses: [],
   topics: ["All"],
   timeRanges: ["All", "<1 hour", "1-3 hours", ">3 hours"],
@@ -27,7 +27,7 @@ export const useCourseStore = create<CourseState>((set, get) => ({
     try {
       const response = await fetch("/api/courses");
       const data = await response.json();
-      const topics = ["All", ...new Set(data.map((c: Course) => c.topic))];
+      const topics = ["All", ...Array.from(new Set(data.map((c: Course) => c.topic))) as string[]];
       set({
         courses: data,
         topics,
@@ -47,7 +47,7 @@ export const useCourseStore = create<CourseState>((set, get) => ({
       const newCourse = await response.json();
       set((state) => {
         const updatedCourses = [...state.courses, newCourse];
-        const topics = ["All", ...new Set(updatedCourses.map((c) => c.topic))];
+        const topics = ["All", ...Array.from(new Set(updatedCourses.map((c) => c.topic))) as string[]];
         return {
           courses: updatedCourses,
           topics,
@@ -79,7 +79,7 @@ export const useCourseStore = create<CourseState>((set, get) => ({
         const updatedCourses = state.courses.map((c) =>
           c.id === id ? updatedCourse : c
         );
-        const topics = ["All", ...new Set(updatedCourses.map((c) => c.topic))];
+        const topics = ["All", ...Array.from(new Set(updatedCourses.map((c) => c.topic))) as string[]];
         return {
           courses: updatedCourses,
           topics,
@@ -108,7 +108,7 @@ export const useCourseStore = create<CourseState>((set, get) => ({
       });
       set((state) => {
         const updatedCourses = state.courses.filter((c) => c.id !== id);
-        const topics = ["All", ...new Set(updatedCourses.map((c) => c.topic))];
+        const topics = ["All", ...Array.from(new Set(updatedCourses.map((c) => c.topic))) as string[]];
         return {
           courses: updatedCourses,
           topics,

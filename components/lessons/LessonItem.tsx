@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Lesson } from "@/lib/types/lesson";
 import { motion } from "framer-motion";
 import { useRef } from "react";
+import { PanInfo } from "framer-motion";
 
 type Props = {
   lesson: Lesson;
@@ -14,7 +15,7 @@ export default function LessonItem({ lesson }: Props) {
   const { updateLessonDate } = useLessonStore();
   const constraintsRef = useRef(null);
 
-  const handleDragEnd = (_event: any, info: any) => {
+  const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     // Calculate new date based on drag position (simplified: 100px = 1 day)
     const daysOffset = Math.round(info.offset.y / 100);
     const newDate = new Date(lesson.date);

@@ -87,9 +87,8 @@ export default function FlashcardDetailPage() {
       await updateFlashcard(data);
       toast.success("Flashcard updated successfully");
       setIsEditing(false);
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to update flashcard";
-      toast.error(errorMessage);
+    } catch {
+      toast.error("Failed to update flashcard");
     } finally {
       setIsSubmitting(false);
     }
@@ -101,9 +100,8 @@ export default function FlashcardDetailPage() {
       await deleteFlashcard(id as string);
       toast.success("Flashcard deleted successfully");
       router.push("/flashcards");
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to delete flashcard";
-      toast.error(errorMessage);
+    } catch {
+      toast.error("Failed to delete flashcard");
     } finally {
       setIsSubmitting(false);
     }

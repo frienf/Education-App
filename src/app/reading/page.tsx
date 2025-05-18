@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 import { BookOpen, Star, Plus, BookMarked } from "lucide-react";
 
 export default function ReadingPage() {
-  const { readings, addReading, fetchReadings } = useReadingStore();
+  const { addReading, fetchReadings } = useReadingStore();
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [rating, setRating] = useState(1);

@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/src/lib/supabase";
-import { Flashcard } from "@/lib/types/spacedRepetition";
 
 export async function GET() {
   try {

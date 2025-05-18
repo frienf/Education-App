@@ -14,7 +14,6 @@ export default function VideoPlayer() {
     setCurrentTime, 
     fetchVideoData, 
     videoId, 
-    defaultVideoId, 
     error: storeError,
     comments 
   } = useVideoStore();

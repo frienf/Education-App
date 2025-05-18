@@ -85,10 +85,8 @@ export default function CoursesPage() {
       setFormTopic("");
       setEstimatedTime("");
       setDescription("");
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to add course";
-      toast.error(errorMessage);
+    } catch {
+      toast.error("Failed to add course");
     } finally {
       setIsSubmitting(false);
     }
