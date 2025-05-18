@@ -6,18 +6,14 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { selectNextQuestion } from "@/lib/utils/adaptiveQuizLogic";
 
 export default function QuizPage() {
   const { 
     currentQuestion, 
     selectAnswer, 
-    nextQuestion, 
     fetchQuestions, 
-    answeredQuestions, 
     questions,
     correctAnswers,
-    setCurrentQuestion,
     questionCounter,
     resetQuiz
   } = useQuizStore();
