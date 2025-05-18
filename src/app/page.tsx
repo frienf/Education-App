@@ -6,13 +6,12 @@ import { useCourseStore } from "@/lib/zustand/courseStore";
 import { useHabitStore } from "@/lib/zustand/habitStore";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
-import { Loader2, Book, Clock, CheckCircle, PenTool, HelpCircle } from "lucide-react";
+import { Book, Clock, CheckCircle, PenTool, HelpCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function HomePage() {
@@ -20,50 +19,104 @@ export default function HomePage() {
   const { cards: spacedFlashcards = [], fetchCards: fetchSpacedFlashcards } = useSpacedRepetitionStore();
   const { courses = [], fetchCourses } = useCourseStore();
   const { habits = [], fetchHabits } = useHabitStore();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const isMounted = useRef(true);
 
-  useEffect(() => {
-    console.log("Fetching data for home page...");
-    Promise.all([
-      fetchFlashcards().catch((err) => console.error("Flashcards fetch error:", err)),
-      fetchSpacedFlashcards().catch((err) => console.error("Spaced flashcards fetch error:", err)),
-      fetchCourses().catch((err) => console.error("Courses fetch error:", err)),
-      fetchHabits().catch((err) => console.error("Habits fetch error:", err)),
-    ])
-      .catch((err) => {
-        console.error("Combined fetch error:", err);
-        toast.error("Failed to load some data");
-      })
-      .finally(() => {
+  const initializeData = async () => {
+    if (isInitialized) return;
+    
+    try {
+      setIsLoading(true);
+      setHasError(false);
+      
+      await Promise.all([
+        fetchFlashcards().catch((err) => {
+          console.error("Flashcards fetch error:", err);
+          return null;
+        }),
+        fetchSpacedFlashcards().catch((err) => {
+          console.error("Spaced flashcards fetch error:", err);
+          return null;
+        }),
+        fetchCourses().catch((err) => {
+          console.error("Courses fetch error:", err);
+          return null;
+        }),
+        fetchHabits().catch((err) => {
+          console.error("Habits fetch error:", err);
+          return null;
+        }),
+      ]);
+
+      if (isMounted.current) {
+        setIsInitialized(true);
+      }
+    } catch (err) {
+      console.error("Combined fetch error:", err);
+      if (isMounted.current) {
+        setHasError(true);
+        toast.error("Failed to load data. Please try again later.");
+      }
+    } finally {
+      if (isMounted.current) {
         setIsLoading(false);
-        console.log("Fetch completed:", { flashcards, spacedFlashcards, courses, habits });
-      });
-  }, [fetchFlashcards, fetchSpacedFlashcards, fetchCourses, fetchHabits]);
+      }
+    }
+  };
+
+  if (!isInitialized) {
+    return (
+      <div className="container mx-auto p-6 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Welcome to LearnHub</h2>
+          <p className="text-muted-foreground mb-4">Click the button below to start loading your data</p>
+          <Button 
+            onClick={initializeData}
+            variant="default"
+            className="bg-primary text-primary-foreground"
+          >
+            Initialize App
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (hasError) {
+    return (
+      <div className="container mx-auto p-6 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Something went wrong</h2>
+          <p className="text-muted-foreground mb-4">Failed to load data. Please try again later.</p>
+          <Button 
+            onClick={initializeData}
+            variant="outline"
+          >
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-6 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Loading your data</h2>
+          <p className="text-muted-foreground mb-4">Please wait while we fetch your information...</p>
+        </div>
+      </div>
+    );
+  }
 
   const dueSpacedFlashcards = Array.isArray(spacedFlashcards)
     ? spacedFlashcards.filter((f) => new Date(f.nextReview) <= new Date())
     : [];
   const incompleteHabits = Array.isArray(habits) ? habits.filter((h) => !h.completed) : [];
   const recentCourses = Array.isArray(courses) ? courses.slice(0, 3) : [];
-
-  if (isLoading) {
-    return (
-      <div className="container mx-auto p-6 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
-        <Skeleton className="h-12 w-3/4 mb-6" />
-        <Skeleton className="h-6 w-1/2 mb-12" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 w-full">
-          {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} className="h-32 w-full" />
-          ))}
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-          {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} className="h-48 w-full" />
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <motion.div

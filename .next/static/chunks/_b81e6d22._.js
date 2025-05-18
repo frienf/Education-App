@@ -556,7 +556,7 @@ var _s = __turbopack_context__.k.signature();
 ;
 function VideoPage() {
     _s();
-    const { videoUrl, fetchVideoData } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$zustand$2f$videoStore$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useVideoStore"])();
+    const { fetchVideoData } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$zustand$2f$videoStore$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useVideoStore"])();
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "VideoPage.useEffect": ()=>{
             fetchVideoData("default"); // Use a default video ID or fetch a list
@@ -581,7 +581,7 @@ function VideoPage() {
                 children: "Interactive Video Player"
             }, void 0, false, {
                 fileName: "[project]/src/app/video/page.tsx",
-                lineNumber: 25,
+                lineNumber: 22,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -590,27 +590,27 @@ function VideoPage() {
                     className: "lg:col-span-2",
                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$video$2f$VideoPlayer$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
                         fileName: "[project]/src/app/video/page.tsx",
-                        lineNumber: 28,
+                        lineNumber: 25,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/app/video/page.tsx",
-                    lineNumber: 27,
+                    lineNumber: 24,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/app/video/page.tsx",
-                lineNumber: 26,
+                lineNumber: 23,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/video/page.tsx",
-        lineNumber: 19,
+        lineNumber: 16,
         columnNumber: 5
     }, this);
 }
-_s(VideoPage, "cdeOo4jcXTEpzQnw4LOTo+x7vQM=", false, function() {
+_s(VideoPage, "2Jy7ButDc+WZbOA3TzC7298s3Mk=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$zustand$2f$videoStore$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useVideoStore"]
     ];

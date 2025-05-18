@@ -800,7 +800,11 @@ function HomePage() {
         fetchFlashcards,
         fetchSpacedFlashcards,
         fetchCourses,
-        fetchHabits
+        fetchHabits,
+        flashcards,
+        spacedFlashcards,
+        courses,
+        habits
     ]);
     const dueSpacedFlashcards = Array.isArray(spacedFlashcards) ? spacedFlashcards.filter((f)=>new Date(f.nextReview) <= new Date()) : [];
     const incompleteHabits = Array.isArray(habits) ? habits.filter((h)=>!h.completed) : [];

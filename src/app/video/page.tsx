@@ -2,14 +2,11 @@
 
 import { useVideoStore } from "@/lib/zustand/videoStore";
 import VideoPlayer from "@/components/video/VideoPlayer";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 
 export default function VideoPage() {
-  const { videoUrl, fetchVideoData } = useVideoStore();
+  const { fetchVideoData } = useVideoStore();
 
   useEffect(() => {
     fetchVideoData("default"); // Use a default video ID or fetch a list
