@@ -42,7 +42,7 @@ export const useLessonStore = create<LessonState>((set) => ({
       });
       const updatedLesson = await response.json();
       set((state) => ({
-        lessons: state.lessonStore.map((l) => (l.id === id ? updatedLesson : l)),
+        lessons: state.lessons.map((l) => (l.id === id ? updatedLesson : l)),
       }));
     } catch (error) {
       console.error("Failed to update lesson date:", error);
